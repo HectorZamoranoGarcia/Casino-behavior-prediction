@@ -4,9 +4,8 @@
 
 library(dplyr)
 library(ggplot2)
-# library(scales) # Asegúrate de tenerlo instalado: install.packages("scales")
+library(scales)
 
-# --- (Esta parte de carga y proceso es igual) ---
 # Cargar datos procesados
 data <- read.csv("datos/processed/bustabit_procesado.csv")
 
@@ -29,13 +28,12 @@ set.seed(123)
 kmeans_result <- kmeans(datos_cluster, centers = 3, nstart = 25)
 
 jugadores$cluster <- as.factor(kmeans_result$cluster)
-# -----------------------------------------------
 
 
-# --- VISUALIZACIÓN MEJORADA (Escala Log) ---
+
+# --- VISUALIZACIÓN MEJORADA (Escala Log)
 ggplot(jugadores, aes(x = apuesta_promedio, y = apuestas_totales, color = cluster)) +
   geom_point(alpha = 0.6, size = 3) +
-  # CAMBIO CLAVE AQUÍ: Usamos scale_x_log10 en vez de continuous
   scale_x_log10(labels = scales::comma) +
   labs(
     title = "Perfiles de Jugadores (Escala Logarítmica)",
@@ -45,5 +43,5 @@ ggplot(jugadores, aes(x = apuesta_promedio, y = apuestas_totales, color = cluste
   ) +
   theme_minimal()
 
-# Guardamos con un nombre nuevo para comparar
+# Guardamos con un nombre nuevo
 ggsave("results/figures/clusters_perfiles_log.png", width = 9, height = 6)
