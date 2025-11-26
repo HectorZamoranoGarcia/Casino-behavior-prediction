@@ -1,111 +1,110 @@
 # Casino Behavior Prediction
 
-Proyecto de análisis de comportamiento de jugadores en casinos online usando distintos enfoques de machine learning (supervisado y no supervisado) en **R**
+Project analyzing online casino player behavior using different machine learning approaches (supervised and unsupervised) in **R**
 
-## Descripción
+## Description
 
-Este proyecto busca detectar patrones en el comportamiento de jugadores y predecir resultados de apuestas online
-El enfoque principal no fue únicamente escribir código, sino explorar y limpiar datos, probar distintos modelos de machine learning en R y analizar sus resultados
-Se aplicaron técnicas de clustering para segmentar perfiles de usuario y modelos de clasificación y regresión para estimar pérdidas, ganancias y probabilidades de resultado
-Durante el desarrollo se utilizó de forma sutil asistencia de inteligencia artificial, principalmente Copilot en Visual Studio Code, para sugerencias y autocompletado de código, pero todas las decisiones y análisis fueron realizados manualmente
+This project aims to detect patterns in player behavior and predict outcomes of online betting
+The main approach was not only writing code, but exploring and cleaning data, testing different machine learning models in R, and analyzing their results
+Clustering techniques were applied to segment user profiles and classification and regression models were used to estimate losses, gains, and outcome probabilities
+During development, subtle assistance from artificial intelligence was used, mainly Copilot in Visual Studio Code for code suggestions and autocompletion, but all decisions and analyses were made manually
 
-## Objetivos
+## Objectives
 
-* Identificar distintos tipos de jugadores mediante análisis de clustering
-* Estimar la probabilidad de pérdida en una apuesta
-* Calcular beneficios esperados con modelos de regresión
-* Comparar el rendimiento entre varios modelos predictivos
+* Identify different types of players through clustering analysis
+* Estimate the probability of losing a bet
+* Calculate expected returns with regression models
+* Compare performance among several predictive models
 
-## Datos
+## Data
 
-**Fuente principal:** Bustabit Gambling Behavior Dataset (Kaggle)
+**Main source:** Bustabit Gambling Behavior Dataset (Kaggle)
 
-* 50 000 registros de apuestas
-* 9 variables principales (Id, GameID, Username, Bet, Profit, etc)
-* Periodo 2023
-* Tamaño aproximado 2.3 MB
+* 50 000 betting records
+* 9 main variables (Id, GameID, Username, Bet, Profit, etc)
+* Year 2023
+* Approximate size 2.3 MB
 
-**Variables creadas**
+**Created variables**
 
-* `hora`: hora del día (0–23)
-* `dia_semana`: día de la semana (1–7)
-* `perdio`: 1 si la apuesta resultó en pérdida, 0 si fue ganancia
-* `tipo_apuesta`: pequeña / media / grande según el monto
+* `hour`: hour of the day (0–23)
+* `weekday`: day of the week (1–7)
+* `lost`: 1 if the bet resulted in a loss, 0 if it was a win
+* `bet_type`: small / medium / large depending on the amount
 
-Para equilibrar los datos (el dataset original solo tenía ganancias) se generaron 5 000 registros sintéticos con una distribución más realista (60 % pérdidas y 40 % ganancias) usando funciones base de R (rexp, sample, rbinom)
+To balance the data (the original dataset only had wins) 5 000 synthetic records were generated with a more realistic distribution (60% losses and 40% wins) using base R functions (rexp, sample, rbinom)
 
-## Metodología
+## Methodology
 
-### 1. Análisis exploratorio
+### 1. Exploratory analysis
 
-Revisión general del dataset, limpieza de valores faltantes y análisis descriptivo de las variables numéricas
-Extracción de información temporal como hora y día desde la variable PlayDate
+General dataset review, missing value cleaning, and descriptive analysis of numerical variables
+Extraction of temporal information such as hour and day from the PlayDate variable
 
-### 2. Preparación de datos
+### 2. Data preparation
 
-Conversión de fechas a formato POSIXct
-Creación de variables derivadas y categorización de apuestas por monto
+Conversion of dates to POSIXct format
+Creation of derived variables and bet categorization by amount
 
-### 3. Partición
+### 3. Partition
 
-Conjunto de entrenamiento 80 %
-Conjunto de prueba 20 %
-Partición estratificada con createDataPartition de caret
-Semilla aleatoria 123
+Training set 80 %
+Test set 20 %
+Stratified sampling with createDataPartition from caret
+Random seed 123
 
 ### 4. Clustering
 
-Algoritmo K-means con k = 3
-Variables utilizadas apuesta total y promedio por jugador
-Datos agregados por usuario (1 182 jugadores únicos con al menos 5 apuestas)
+K-means algorithm with k = 3
+Variables used: total and average bet per player
+Data aggregated by user (1 182 unique players with at least 5 bets)
 
-| Cluster | Nº Jugadores  | Promedio Apuesta | Interpretación           |
-| ------- | ------------- | ---------------- | ------------------------ |
-| 1       | 19 (1.6%)     | 177 505          | Jugadores de alto riesgo |
-| 2       | 109 (9.2%)    | 418              | Usuarios frecuentes      |
-| 3       | 1 054 (89.2%) | 1 953            | Jugadores casuales       |
+| Cluster | # Players   | Average Bet | Interpretation          |
+| ------- | ------------ | ------------ | ------------------------ |
+| 1       | 19 (1.6%)    | 177 505      | High-risk players        |
+| 2       | 109 (9.2%)   | 418          | Frequent users           |
+| 3       | 1 054 (89.2%)| 1 953        | Casual players           |
 
-### 5. Modelos de clasificación
+### 5. Classification models
 
-Variable objetivo perdio (0 = ganó, 1 = perdió)
-Modelos probados
+Target variable: lost (0 = won, 1 = lost)
+Models tested
 
-* Regresión logística simple y con interacción
+* Simple logistic regression and with interaction
 * Random Forest (ntree = 500)
 
-Resultados de validación cruzada (5-fold)
+Cross-validation results (5-fold)
 
-| Modelo        | Accuracy | Kappa | Observaciones                         |
+| Model        | Accuracy | Kappa | Observations                         |
 | ------------- | -------- | ----- | ------------------------------------- |
-| Logística     | 0.585    | 0.00  | Predice la clase mayoritaria          |
-| Random Forest | 0.530    | 0.01  | Ligera mejora con poca discriminación |
+| Logistic      | 0.585    | 0.00  | Predicts the majority class           |
+| Random Forest | 0.530    | 0.01  | Slight improvement, low discrimination |
 
-### 6. Modelos de regresión
+### 6. Regression models
 
-Variable objetivo Profit
+Target variable Profit
 
-Modelos
+Models
 
-* Lineal simple Profit ~ Bet + hora
-* Lineal con interacción Profit ~ Bet * hora + dia_semana
+* Simple linear Profit ~ Bet + hour
+* Linear with interaction Profit ~ Bet * hour + weekday
 
-| Modelo            | R²    | RMSE   | Variables significativas |
-| ----------------- | ----- | ------ | ------------------------ |
-| Simple            | 0.029 | 136.45 | Bet                      |
-| Con interacciones | 0.019 | 136.26 | Bet, Bet:hora            |
+| Model            | R²    | RMSE   | Significant variables |
+| ----------------- | ----- | ------ | ---------------------- |
+| Simple            | 0.029 | 136.45 | Bet                    |
+| With interactions | 0.019 | 136.26 | Bet, Bet:hour          |
 
-La variable Bet es el mejor predictor, aunque la varianza explicada es baja, lo que tiene sentido en un contexto de azar
+Bet is the best predictor, although the explained variance is low, which makes sense in a gambling context
 
-## Conclusiones
+## Conclusions
 
-Se identificaron tres perfiles de jugadores con comportamientos distintos
-Los modelos de clasificación tienen un rendimiento limitado, coherente con la naturaleza aleatoria de los juegos de azar
-El monto apostado (Bet) es la variable más relevante
-La regresión logística fue el modelo con mejor precisión media (≈ 0.58)
+Three distinct player profiles were identified
+Classification models have limited performance, consistent with the random nature of gambling
+Bet amount (Bet) is the most relevant variable
+Logistic regression was the model with the best average accuracy (≈ 0.58)
 
-## Estructura del repositorio
+## Repository structure
 
-```
 casino-behavior-prediction/
 ├── datos/
 │   ├── raw/
@@ -122,35 +121,34 @@ casino-behavior-prediction/
 └── README.md
 ```
 
-## Tecnologías
 
-* Lenguaje R 4.5
-* Librerías dplyr, ggplot2, caret, randomForest, lubridate, readr
-* Control de versiones Git / GitHub
-* IDE Visual Studio Code con extensión de R
+## Technologies
 
-## Ejecución
+* R language 4.5
+* Libraries dplyr, ggplot2, caret, randomForest, lubridate, readr
+* Version control with Git / GitHub
+* IDE Visual Studio Code with R extension
 
-Instalar dependencias
+## Execution
 
-```r
+Install dependencies
+
 install.packages(c("dplyr", "ggplot2", "caret", "randomForest", "readr", "lubridate"))
-```
 
-Ejecutar scripts en orden
 
-```r
-source("notebooks/01_analisis_exploratorio.R")
-source("notebooks/02_preparacion_datos.R")
-source("notebooks/03_clustering_perfiles.R")
-source("notebooks/04_prediccion_churn.R")
-source("notebooks/05_regresion_lineal.R")
-source("notebooks/06_modelos_avanzados.R")
-```
+Run scripts in order
 
-## Autor
+source("notebooks/01_exploratory_analysis.R")
+source("notebooks/02_data_preparation.R")
+source("notebooks/03_profile_clustering.R")
+source("notebooks/04_churn_prediction.R")
+source("notebooks/05_linear_regression.R")
+source("notebooks/06_advanced_models.R")
+
+
+Author
 
 Héctor Zamorano García
 
-Semilla fija 123
-Dataset sintético generado con distribuciones exponenciales y binomiales
+Fixed seed 123
+Synthetic dataset generated with exponential and binomial distributions
