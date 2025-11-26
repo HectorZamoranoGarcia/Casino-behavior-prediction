@@ -105,6 +105,7 @@ Logistic regression was the model with the best average accuracy (≈ 0.58)
 
 ## Repository structure
 
+```
 casino-behavior-prediction/
 ├── datos/
 │   ├── raw/
