@@ -2,6 +2,14 @@
 
 Project analyzing online casino player behavior using different machine learning approaches (supervised and unsupervised) in **R**
 
+![R 4.5](https://img.shields.io/badge/R-v4.5-276DC3?style=for-the-badge&logo=r&logoColor=white)
+![Tidyverse](https://img.shields.io/badge/Tidyverse-Integrated-232F3E?style=for-the-badge&logo=tidyverse&logoColor=white)
+![Caret](https://img.shields.io/badge/Caret-ML_Framework-orange?style=for-the-badge)
+![Random Forest](https://img.shields.io/badge/Random_Forest-Predictive_Modeling-green?style=for-the-badge)
+![K-Means](https://img.shields.io/badge/K_Means-Clustering-blue?style=for-the-badge)
+![GitHub](https://img.shields.io/badge/GitHub-Version_Control-181717?style=for-the-badge&logo=github&logoColor=white)
+![VS Code](https://img.shields.io/badge/VS_Code-Integrated-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white)
+
 ## Description
 
 This project aims to detect patterns in player behavior and predict outcomes of online betting
