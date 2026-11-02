@@ -1,16 +1,15 @@
-# ============================================
-# 03 - CLUSTERING: PLAYER PROFILES (LOG SCALE)
-# Project: Casino Behavior Prediction
-# ============================================
+# 03 Player clustering
 
 library(dplyr)
 library(ggplot2)
 library(scales)
 
-# Load processed data
+# Read the processed data
+
 data <- read.csv("datos/processed/bustabit_procesado.csv")
 
-# Aggregate data per player
+# Summarize each player
+
 jugadores <- data %>%
   group_by(Username) %>%
   summarise(
@@ -18,19 +17,24 @@ jugadores <- data %>%
     apuesta_promedio = mean(Bet),
     tasa_perdida     = mean(perdio, na.rm = TRUE)
   ) %>%
-  filter(apuestas_totales >= 5)   # Keep players with at least 5 bets
+  # Keep players with five or more bets
 
-# Scale features before clustering
+  filter(apuestas_totales >= 5)
+
+# Scale the features
+
 datos_cluster <- jugadores %>%
   select(apuestas_totales, apuesta_promedio) %>%
   scale()
 
-# K-Means with k = 3
+# Create three clusters
+
 set.seed(123)
 kmeans_result    <- kmeans(datos_cluster, centers = 3, nstart = 25)
 jugadores$cluster <- as.factor(kmeans_result$cluster)
 
-# --- Visualization (log scale) ---
+# Plot the clusters
+
 ggplot(jugadores, aes(x = apuesta_promedio, y = apuestas_totales, color = cluster)) +
   geom_point(alpha = 0.6, size = 3) +
   scale_x_log10(labels = scales::comma) +
@@ -42,5 +46,6 @@ ggplot(jugadores, aes(x = apuesta_promedio, y = apuestas_totales, color = cluste
   ) +
   theme_minimal()
 
-# Save figure
+# Save the plot
+
 ggsave("results/figures/clusters_perfiles_log.png", width = 9, height = 6)

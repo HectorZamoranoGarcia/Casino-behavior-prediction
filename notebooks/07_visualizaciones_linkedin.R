@@ -1,28 +1,23 @@
-# ============================================================
-# 07 - PREMIUM VISUALIZATIONS FOR LINKEDIN
-# Project: Casino Behavior Prediction
-# Run from the project root directory
-#
-# Outputs 3 images to results/figures/:
-#   player_segmentation_kmeans.png
-#   bet_distribution_by_profile.png
-#   linear_regression_profit_analysis.png
-# ============================================================
+# 07 Visualize the results
+# Run from the project root
 
-library(randomForest)  # loaded first so ggplot2 can reclaim margin()
+# Load this first to avoid a theme conflict
+
+library(randomForest)
 library(dplyr)
 library(ggplot2)
 library(scales)
 library(caret)
 library(lubridate)
 library(readr)
-library(patchwork)   # install.packages("patchwork") if not available
+# Load plot layout tools
+
+library(patchwork)
 
 dir.create("results/figures", recursive = TRUE, showWarnings = FALSE)
 
-# ============================================================
-# CUSTOM DARK THEME
-# ============================================================
+# Set the plot theme
+
 theme_casino <- function() {
   theme_minimal(base_family = "sans") +
     theme(
@@ -49,15 +44,13 @@ theme_casino <- function() {
     )
 }
 
-# ============================================================
-# DATA: load processed files or fall back to synthetic data
-# ============================================================
+# Load clustering data
 
-# --- Clustering data (real Bustabit dataset) ---
 if (file.exists("datos/processed/bustabit_procesado.csv")) {
   data_real <- read.csv("datos/processed/bustabit_procesado.csv")
 } else {
-  # Synthetic fallback matching the distribution documented in the README
+  # Use a small synthetic fallback
+
   set.seed(42)
   n_users <- 1182
   data_real <- data.frame(
@@ -69,7 +62,8 @@ if (file.exists("datos/processed/bustabit_procesado.csv")) {
   )
 }
 
-# Aggregate per player and apply K-Means
+# Cluster the players
+
 jugadores <- data_real %>%
   group_by(Username) %>%
   summarise(
@@ -84,7 +78,8 @@ datos_cluster     <- scale(jugadores[, c("apuestas_totales", "apuesta_promedio")
 kmeans_result     <- kmeans(datos_cluster, centers = 3, nstart = 25)
 jugadores$cluster <- as.factor(kmeans_result$cluster)
 
-# Label clusters by size: largest -> Casual, medium -> Frequent, smallest -> High Risk
+# Assign labels by cluster size
+
 sizes <- sort(table(jugadores$cluster))
 map_labels <- setNames(
   c("Alto Riesgo", "Frecuentes", "Casuales"),
@@ -95,7 +90,8 @@ jugadores$perfil <- factor(
   levels = c("Casuales", "Frecuentes", "Alto Riesgo")
 )
 
-# --- Simulated data for regression analysis ---
+# Build simulated regression data
+
 set.seed(123)
 n <- 5000
 data_sim <- data.frame(
@@ -110,10 +106,8 @@ data_sim <- data.frame(
                      Bet * runif(n, 0.3, 2))
   )
 
-# ============================================================
-# PLOT 1 — K-Means player segmentation
-# Output: player_segmentation_kmeans.png
-# ============================================================
+# Plot 1: Player clusters
+# Save to player_segmentation_kmeans.png
 
 centroides <- jugadores %>%
   group_by(perfil) %>%
@@ -162,10 +156,8 @@ ggsave("results/figures/player_segmentation_kmeans.png",
        plot = p1, width = 12, height = 7, dpi = 150, bg = "#0d1117")
 cat("✅ Saved: player_segmentation_kmeans.png\n")
 
-# ============================================================
-# PLOT 2 — Bet distribution by player profile (violin + boxplot)
-# Output: bet_distribution_by_profile.png
-# ============================================================
+# Plot 2: Bets by cluster
+# Save to bet_distribution_by_profile.png
 
 p2 <- ggplot(jugadores,
              aes(x = perfil, y = apuesta_promedio, fill = perfil)) +
@@ -203,10 +195,8 @@ ggsave("results/figures/bet_distribution_by_profile.png",
        plot = p2, width = 10, height = 7, dpi = 150, bg = "#0d1117")
 cat("✅ Saved: bet_distribution_by_profile.png\n")
 
-# ============================================================
-# PLOT 3 — Linear regression: predicted vs actual + error distribution
-# Output: linear_regression_profit_analysis.png
-# ============================================================
+# Plot 3: Profit predictions
+# Save to linear_regression_profit_analysis.png
 
 set.seed(123)
 trainIdx  <- createDataPartition(data_sim$Profit, p = 0.8, list = FALSE)
@@ -218,7 +208,8 @@ preds      <- predict(modelo_reg, test_reg)
 df_pred    <- data.frame(Real = test_reg$Profit, Predicho = preds) %>%
   mutate(Error = Predicho - Real)
 
-# Panel A: Predicted vs Actual
+# Actual and predicted values
+
 pa <- ggplot(df_pred, aes(x = Real, y = Predicho)) +
   geom_point(alpha = 0.25, size = 1.3, color = "#58a6ff") +
   geom_abline(slope = 1, intercept = 0,
@@ -237,7 +228,8 @@ pa <- ggplot(df_pred, aes(x = Real, y = Predicho)) +
   ) +
   theme_casino()
 
-# Panel B: Prediction error distribution
+# Prediction errors
+
 pb <- ggplot(df_pred, aes(x = Error)) +
   geom_histogram(aes(y = after_stat(density)),
                  bins = 50, fill = "#58a6ff", alpha = 0.5, color = NA) +

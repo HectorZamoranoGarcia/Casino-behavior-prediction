@@ -1,30 +1,35 @@
-# ============================================
-# 02 - DATA PREPARATION AND CLEANING
-# Project: Casino Behavior Prediction
-# ============================================
+# 02 Data preparation
 
 library(dplyr)
 library(lubridate)
 library(readr)
 
-# Load raw data
+# Read the raw data
+
 data <- read_csv("datos/raw/bustabit.csv")
 
-# Clean and engineer features
+# Prepare the fields
+
 data <- data %>%
-  filter(!is.na(Profit)) %>%       # Remove rows with missing Profit
+  # Drop rows without profit
+
+  filter(!is.na(Profit)) %>%
   mutate(
-    # Parse datetime
+    # Parse the date
+
     PlayDate = as.POSIXct(PlayDate, format = "%Y-%m-%d %H:%M:%S"),
 
-    # Time-based features
+    # Add time fields
+
     hora       = hour(PlayDate),
     dia_semana = wday(PlayDate, label = TRUE),
 
-    # Target variable: 1 if the bet resulted in a loss
+    # Mark losses as 1
+
     perdio = ifelse(Profit < 0, 1, 0),
 
-    # Bet size category
+    # Group bets by size
+
     tipo_apuesta = case_when(
       Bet < 10  ~ "pequeña",
       Bet < 100 ~ "media",
@@ -32,8 +37,10 @@ data <- data %>%
     )
   )
 
-# Sanity check: no NAs in target
+# Check the target
+
 sum(is.na(data$perdio))
 
-# Save processed dataset
+# Save the processed data
+
 write.csv(data, "datos/processed/bustabit_procesado.csv", row.names = FALSE)

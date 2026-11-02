@@ -1,19 +1,19 @@
-# ============================================
-# 06 - CROSS-VALIDATION AND MODEL COMPARISON
-# Project: Casino Behavior Prediction
-# ============================================
+# 06 Model comparison
 
 library(caret)
 library(randomForest)
 
-# Load simulated data
+# Read the simulated data
+
 data        <- read.csv("datos/processed/casino_simulado.csv")
 data$perdio <- as.factor(data$perdio)
 
-# 5-fold cross-validation setup
+# Set up five-fold cross-validation
+
 control <- trainControl(method = "cv", number = 5)
 
-# Model 1: Logistic Regression
+# Fit the logistic model
+
 set.seed(123)
 modelo_logit <- train(
   perdio ~ Bet + hora,
@@ -23,7 +23,8 @@ modelo_logit <- train(
   trControl = control
 )
 
-# Model 2: Random Forest (500 trees)
+# Fit the random forest
+
 set.seed(123)
 modelo_rf <- train(
   perdio ~ Bet + hora + dia_semana,
@@ -32,7 +33,8 @@ modelo_rf <- train(
   trControl = control
 )
 
-# Compare models
+# Compare the models
+
 resultados <- resamples(list(
   Logistica    = modelo_logit,
   RandomForest = modelo_rf
@@ -40,12 +42,14 @@ resultados <- resamples(list(
 
 summary(resultados)
 
-# Comparison boxplot
+# Plot the model results
+
 png("results/figures/comparacion_modelos.png", width = 800, height = 600)
 bwplot(resultados)
 dev.off()
 
-# Best model summary
+# Show the model accuracy
+
 cat("\n=== BEST MODEL ===\n")
 cat("Logistic Regression - Accuracy:", max(modelo_logit$results$Accuracy), "\n")
 cat("Random Forest       - Accuracy:", max(modelo_rf$results$Accuracy),    "\n")

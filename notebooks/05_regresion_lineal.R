@@ -1,34 +1,37 @@
-# ============================================
-# 05 - LINEAR REGRESSION (Predict Profit)
-# Project: Casino Behavior Prediction
-# ============================================
+# 05 Linear regression
 
 library(dplyr)
 library(caret)
 library(ggplot2)
 
-# Load simulated data
+# Read the simulated data
+
 data <- read.csv("datos/processed/casino_simulado.csv")
 
-# Train / test split (80 / 20)
+# Split the data into training and test sets
+
 set.seed(123)
 trainIndex <- createDataPartition(data$Profit, p = 0.8, list = FALSE)
 train      <- data[trainIndex, ]
 test       <- data[-trainIndex, ]
 
-# Model 1: Simple linear regression
+# Fit a simple regression model
+
 modelo_simple <- lm(Profit ~ Bet + hora, data = train)
 summary(modelo_simple)
 
-# Model 2: Linear regression with interaction term
+# Fit a model with an interaction
+
 modelo_interacciones <- lm(Profit ~ Bet * hora + dia_semana, data = train)
 summary(modelo_interacciones)
 
-# Predictions on test set
+# Predict on the test set
+
 pred_simple <- predict(modelo_simple, test)
 pred_int    <- predict(modelo_interacciones, test)
 
-# Evaluation metrics (RMSE, R²)
+# Compare the model errors
+
 cat("\n=== SIMPLE MODEL ===\n")
 cat("RMSE:", RMSE(pred_simple, test$Profit), "\n")
 cat("R²:",   R2(pred_simple,   test$Profit), "\n")
@@ -37,7 +40,8 @@ cat("\n=== MODEL WITH INTERACTIONS ===\n")
 cat("RMSE:", RMSE(pred_int, test$Profit), "\n")
 cat("R²:",   R2(pred_int,   test$Profit), "\n")
 
-# Plot: Predicted vs Actual
+# Plot actual and predicted values
+
 ggplot(
   data.frame(Real = test$Profit, Predicho = pred_int),
   aes(x = Real, y = Predicho)
