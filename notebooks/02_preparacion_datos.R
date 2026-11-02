@@ -24,7 +24,7 @@ data <- data %>%
     hora       = hour(PlayDate),
     dia_semana = wday(PlayDate, label = TRUE),
 
-    # Mark losses as 1
+    # Flag negative profit values
 
     perdio = ifelse(Profit < 0, 1, 0),
 

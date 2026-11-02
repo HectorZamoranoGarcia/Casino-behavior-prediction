@@ -15,7 +15,7 @@ The classification and regression examples use synthetic records. Their scores d
 
 The raw file comes from the [Gambling Behavior Bustabit dataset on Kaggle](https://www.kaggle.com/datasets/kingabzpro/gambling-behavior-bustabit). It contains 50,000 records from October to December 2016 and is included in `datos/raw/bustabit.csv`. The processed files are also tracked in this repository.
 
-The preparation script removes rows with missing `Profit` and adds the hour, day of the week, loss flag, and bet-size group. Classification and regression use a separate file of 5,000 synthetic records with a 60% loss rate.
+The preparation script removes rows with missing `Profit` and adds the hour, day of the week, loss flag, and bet-size group. In the included raw file, 21,266 of 50,000 rows have no `Profit`, and none of the remaining values are negative. The prepared loss flag is therefore zero for every retained row. Classification and regression use a separate file of 5,000 synthetic records with a 60% loss rate.
 
 ## Analysis
 
